@@ -1,0 +1,45 @@
+import definitions.embeddings
+import utility.functions
+import codecs
+import unicodecsv
+import numpy as np
+
+def create(embeddings_file):
+    embeddings = definitions.embeddings.Embeddings(embeddings_file)
+    return embeddings
+
+def get_doc_embeddings(data_file, embeddings, config, limit=10):
+    utility.functions.print_name()
+    docs = list()
+    with codecs.open(data_file, 'r', 'utf-8') as f:
+        reader = unicodecsv.reader(f, encoding='utf-8')
+        for index, row in enumerate(reader):
+            print index
+            if(index == 0):
+                label_index = row.index(config.get("labelColumn"))
+                text_index = row.index(config.get("textColumn"))
+            if(index != 0):
+                if (limit and index > limit):
+                    break
+                doc = dict()
+                doc['id'] = index
+                doc['label'] = row[label_index]
+                text = row[text_index].lower()
+
+                word_tokens = utility.functions.get_word_tokens(text)
+
+                doc['embedding'] = _combine_word_embeddings(word_tokens, embeddings)
+
+                docs.append(doc)
+    return docs
+
+def _combine_word_embeddings(word_tokens, embeddings):
+    combined_word_embeddings = None
+    for word in word_tokens:
+        if word in embeddings.dict:
+            word_embeddings = embeddings.dict[word]
+            if (combined_word_embeddings is None):
+                combined_word_embeddings = np.array(word_embeddings)
+            else:
+                combined_word_embeddings = utility.functions.combine_arrays(combined_word_embeddings, word_embeddings)
+    return combined_word_embeddings

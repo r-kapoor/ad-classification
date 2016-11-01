@@ -34,6 +34,17 @@ class AdConfig:
         Config.read(config_file)
         self.config["labelColumn"] = Config.get("TrainingData", "labelColumn")
         self.config["textColumn"] = Config.get("TrainingData", "textColumn")
+        self.config["separateTrainingTesting"] = Config.getboolean("TrainingData", "separateTrainingTesting")
+        self.config["possibleLabels"] = Config.get("TrainingData", "possibleLabels")
+        self.config["cross_validation"] = Config.getboolean("TrainingData", "cross_validation")
+        self.config["model"] = Config.get("Classifier", "model")
+        self.config["trainPercent"] = Config.getfloat("Classifier", "trainPercent")
+        self.config["scale"] = Config.getboolean("Classifier", "scale")
+        self.config["normalize"] = Config.getboolean("Classifier", "normalize")
+        self.config["k_best"] = Config.getboolean("Classifier", "k_best")
 
     def get(self, name):
         return self.config[name]
+
+    def has(self, name):
+        return name in self.config
